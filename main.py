@@ -1,5 +1,5 @@
 import tkinter   # modulo(es una biblioteca gráfica)
-from PIL import Image, ImageTk
+from PIL import Image, ImageTk # type: ignore
 
 
 window = tkinter.Tk() #esto es para mostrar la ventana
@@ -11,6 +11,12 @@ button1 = None
 
 # Variable global textos
 text_label = "verdana"
+
+def createButton(frame, text, command):
+    button = tkinter.Button(frame, text=text, command=command)
+    button.config(bg = "orange" , width=25, height=2, relief = "groove", bd = 15, cursor = "pirate", font = (text_label, 15))
+    button.pack(pady = 20)
+    
 
 def show_new_window(): # permite vaciar la ventana para llevarnos al menu principal
 
