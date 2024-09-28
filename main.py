@@ -2,6 +2,15 @@ import tkinter   # modulo(es una biblioteca gráfica)
 from PIL import Image, ImageTk
 
 
+# Primero: se definen las varibles, constantes o flags que se vayan a utilizar
+
+# Segundo: se definen las funciones que se van a utilizar
+
+# tercero: se crea la ventana y se configura
+
+# cuarto: se crea la lógica de la ventana
+
+# Configuración de la ventana 
 window = tkinter.Tk() #esto es para mostrar la ventana
 window.geometry("630x630+5+5") #esto es para dimensionar la ventana
 window.title("Bodybuilder App")
@@ -9,50 +18,68 @@ window.title("Bodybuilder App")
 # Variables globales
 button1 = None 
 
+# CONSTANTES
+
+COLOR_BOTON = 'orange'
+COLOR_BOTON_ALERTA = 'red'
+CURSOR = 'pirate'
+RELIEF = "groove"
+
 # Variable global textos
 text_label = "verdana"
 
-def show_new_window(): # permite vaciar la ventana para llevarnos al menu principal
 
-    for widget in frame1.winfo_children(): #se usa el for porque winfo... da una lista de los elementos en la ventana
-        widget.destroy()
+#FRAMES 
+main_frame = tkinter.Frame(window, bg = "black")
+main_frame.config(width = 1000, height = 1000)
+main_frame.pack(expand = True, fill = tkinter.BOTH)
 
-    label1 = tkinter.Label(frame1, text = "Menú principal", font = (text_label, 30), bg = "black", fg = "white" )
-    label1.pack(pady = 20)
-    
-    button2 = tkinter.Button(frame1, text = "Rutinas preestablecidas", command = show_new_window2)
-    button2.config(bg = "orange" , width=25, height=2, relief = "groove", bd = 15, cursor = "pirate", font = (text_label, 15))
-    button2.pack(pady = 20)
-    button3 = tkinter.Button(frame1, text = "Regresar", command = go_back)
-    button3.config(bg = "orange" , width=15, height=2, relief = "groove", bd = 15, cursor = "pirate", font = (text_label, 15))
-    button3.pack(pady = 10)
-
-
-def show_new_window2(): #muestra el menú con las opciones de tren sup e inf.
-
-
-    for widget in frame1.winfo_children():
-        widget.destroy()
-
-    button_tren_sup = tkinter.Button(frame1, text = "Tren superior", command = sup_routines_menu)
-    button_tren_sup.config(bg = "orange" , width=15, height=2, relief = "groove", bd = 15, cursor = "pirate", font = (text_label, 15))
-    button_tren_sup.pack(pady = 100)
-
-    button_tren_inf = tkinter.Button(frame1, text = "Tren inferior", command = inf_routines_menu  )
-    button_tren_inf.config(bg = "orange" , width=15, height=2, relief = "groove", bd = 15, cursor = "pirate", font = (text_label, 15))
-    button_tren_inf.pack(pady = 20)
-
-    back_button = tkinter.Button(frame1, text = "Regresar", command = show_new_window)
-    back_button.config(bg = "orange" , width=15, height=2, relief = "groove", bd = 15, cursor = "pirate", font = (text_label, 15))
-    back_button.pack(pady = 10)
-
+#Flags 
 is_paused = False
+
+# Variables globales
 total_time = 0
 activity = ""
 rounds = 3 
+total_time = 0
 
 
-def chest_timer():
+# Funcion: Crear botones generales  de los diferentes interfaces 
+def createButton(text, frame, command, width, height, pady):
+    button = tkinter.Button(frame, text = text, command = command) #Creacion de boton 
+    button.config(bg = COLOR_BOTON , width=width, height= height, relief = RELIEF, bd = 15, cursor = CURSOR, font = (text_label, 15)) #Estilo del buton
+    button.pack(pady = pady) #Espaciado del boton
+
+
+
+
+
+def clearWindow():
+    for widget in main_frame.winfo_children(): #se usa el for porque winfo... da una lista de los elementos en la ventana
+        widget.destroy()
+    
+
+def show_new_window(): # permite vaciar la ventana para llevarnos al menu principal
+    clearWindow()
+    label1 = tkinter.Label(main_frame, text = "Menú principal", font = (text_label, 30), bg = "black", fg = "white" )
+    label1.pack(pady = 20)
+    createButton("Rutinas Preestablecidas", main_frame, show_main_menu, 25, 2, 20)
+    createButton("Regresar", main_frame, go_back, 25, 2, 10)
+
+
+def show_main_menu(): #muestra el menú con las opciones de tren sup e inf.
+
+    clearWindow()
+    createButton("Tren Superior", main_frame, sup_routines_menu, 15, 2, 100)
+    createButton("Tren Inferior", main_frame, inf_routines_menu, 15, 2, 20)
+    createButton("Regresar", main_frame, show_new_window, 15, 2, 10)
+
+
+def timer (): 
+    print("timer")
+
+
+def chest_timer(): # una funcion tiene un solo objetivo, en este caso es el temporizador
 
 
     def countdown():
@@ -66,20 +93,20 @@ def chest_timer():
 
 
         if total_time > 0 and not is_paused:
-            mins, secs = divmod(total_time, 60)
-            timer = f"{mins:02d}:{secs:02d}"
-            label.config(text=f"{activity}: {timer}")
+            mins, secs = divmod(total_time, 60) #divmod divide el tiempo en minutos y segundos
+            timer = f"{mins:02d}:{secs:02d}" #Fromatea el tiempo para tener minutos y segundos con 2 decimales
+            label.config(text=f"{activity}: {timer}") #Formato de la etiqueta de tiempo y actividad
             total_time -= 1
-            frame1.after(1000, countdown)  # Llama a countdown cada segundo
+            main_frame.after(1000, countdown)  # Llama a countdown cada segundo
         elif total_time == 0:
             if activity == "Moviendote":
                 activity = "Descanso"
-                total_time = 30  # Tiempo de descanso
+                total_time = 12  # Tiempo de descanso
             else:
                 rounds -= 1
                 if rounds > 0:
                     activity = "Moviendote"
-                    total_time = 25  # Tiempo de trabajo
+                    total_time = 9  # Tiempo de trabajo
                 else:
                     label.config(text="Felicidades, lo has completado")
                     return
@@ -92,8 +119,8 @@ def chest_timer():
           reinicia el temporizador a 25
         """
         global total_time, activity, rounds
-        activity = "Trabajo"
-        total_time = 25  # Tiempo de trabajo
+        activity = "Moviendote"
+        total_time = 10  # Tiempo de trabajo
         countdown()
 
 
@@ -113,11 +140,11 @@ def chest_timer():
         is_paused = False
         countdown()
 
-
-    label = tkinter.Label(frame1, text="", font=("Helvetica", 24))
+    # Estandarizar
+    label = tkinter.Label(main_frame, text="", font=("Helvetica", 24))
     label.pack(pady=20)
 
-    button_frame_a = tkinter.Frame(frame1, bg = "black")
+    button_frame_a = tkinter.Frame(main_frame, bg = "black")
     button_frame_a.pack(anchor = "nw", padx = 20, pady = 40)
 
     start_button = tkinter.Button(button_frame_a, text="Iniciar", command=start_timer)
@@ -129,18 +156,18 @@ def chest_timer():
     pause_button.pack(side=tkinter.LEFT, padx=10, pady=20)
 
 
-    resume_button = tkinter.Button(frame1, text="Reanudar/iniciar", command=resume_timer)
+    resume_button = tkinter.Button(main_frame, text="Reanudar/iniciar", command=resume_timer)
     resume_button.config(bg = "orange", width = 16, height = 2, relief = "groove", bd = 15, cursor = "pirate", font = (text_label, 15))
     resume_button.pack(side=tkinter.LEFT, padx=20, pady=20)
 
-    exit_button = tkinter.Button(frame1, text="Salir", command = chest_menu,)
+    exit_button = tkinter.Button(main_frame, text="Salir", command = chest_menu,)
     exit_button.config(bg = "orange", width = 16, height = 2, relief = "groove", bd = 15, cursor = "pirate", font = (text_label, 15))
     exit_button.pack(side=tkinter.LEFT, padx=20, pady=20)
 
 
 def bench_press():
 
-    for widget in frame1.winfo_children():
+    for widget in main_frame.winfo_children():
         widget.destroy()
     
     chest_timer()
@@ -169,7 +196,7 @@ def bench_press():
 
 def inclined_press():
 
-    for widget in frame1.winfo_children():
+    for widget in main_frame.winfo_children():
         widget.destroy()
     
     chest_timer()
@@ -197,7 +224,7 @@ def inclined_press():
 
 
 def push_ups():
-    for widget in frame1.winfo_children():
+    for widget in main_frame.winfo_children():
         widget.destroy()
     
     chest_timer()
@@ -226,7 +253,7 @@ def push_ups():
 
 
 def openins():
-    for widget in frame1.winfo_children():
+    for widget in main_frame.winfo_children():
         widget.destroy()
     
     chest_timer()
@@ -255,11 +282,11 @@ def openins():
 
 
 def chest_menu(): #presionando el boton de pecho nos lleva a otro menú y muestra las opciones de ejercicios
-    for widget in frame1.winfo_children():
+    for widget in main_frame.winfo_children():
         widget.destroy()
 
 
-    button_frame_a = tkinter.Frame(frame1, bg = "black")
+    button_frame_a = tkinter.Frame(main_frame, bg = "black")
     button_frame_a.pack(anchor = "nw", padx = 20, pady = 10)
 
     button1_chest = tkinter.Button(button_frame_a, text = "Press banca", command = bench_press     )
@@ -270,7 +297,7 @@ def chest_menu(): #presionando el boton de pecho nos lleva a otro menú y muestr
     button2_chest.config(bg = "orange", width = 15, height = 2, relief = "groove", bd = 15, cursor = "pirate", font = (text_label, 15))
     button2_chest.pack(side = tkinter.LEFT, padx= 10, pady = 30 )
 
-    button_frame_b = tkinter.Frame(frame1, bg = "black")
+    button_frame_b = tkinter.Frame(main_frame, bg = "black")
     button_frame_b.pack(anchor = "nw", padx = 20, pady = (10,0))    
 
 
@@ -282,7 +309,7 @@ def chest_menu(): #presionando el boton de pecho nos lleva a otro menú y muestr
     button4_chest.config(bg = "orange", width = 15, height = 2, relief = "groove", bd = 15, cursor = "pirate", font = (text_label, 15))
     button4_chest.pack(side = tkinter.LEFT, padx = 10, pady = 30)
 
-    back_button = tkinter.Button(frame1, text = "Regresar", command = sup_routines_menu)
+    back_button = tkinter.Button(main_frame, text = "Regresar", command = sup_routines_menu)
     back_button.config(bg = "orange" , width=15, height=2, relief = "groove", bd = 15, cursor = "pirate", font = (text_label, 15))
     back_button.pack(pady = 2)
 
@@ -298,7 +325,7 @@ def biceps_timer():
             timer = f"{mins:02d}:{secs:02d}"
             label.config(text=f"{activity}: {timer}")
             total_time -= 1
-            frame1.after(1000, countdown)  # Llama a countdown cada segundo
+            main_frame.after(1000, countdown)  # Llama a countdown cada segundo
         elif total_time == 0:
             if activity == "Moviendote":
                 activity = "Descanso"
@@ -332,10 +359,10 @@ def biceps_timer():
         countdown()
         
 
-    label = tkinter.Label(frame1, text="", font=("Helvetica", 24))
+    label = tkinter.Label(main_frame, text="", font=("Helvetica", 24))
     label.pack(pady=20)
 
-    button_frame_a = tkinter.Frame(frame1, bg = "black")
+    button_frame_a = tkinter.Frame(main_frame, bg = "black")
     button_frame_a.pack(anchor = "nw", padx = 20, pady = 40)
 
     start_button = tkinter.Button(button_frame_a, text="Iniciar", command=start_timer)
@@ -347,17 +374,17 @@ def biceps_timer():
     pause_button.pack(side=tkinter.LEFT, padx=10, pady=20)
 
 
-    resume_button = tkinter.Button(frame1, text="Reanudar/iniciar", command=resume_timer)
+    resume_button = tkinter.Button(main_frame, text="Reanudar/iniciar", command=resume_timer)
     resume_button.config(bg = "orange", width = 16, height = 2, relief = "groove", bd = 15, cursor = "pirate", font = (text_label, 15))
     resume_button.pack(side=tkinter.LEFT, padx=20, pady=20)
 
-    exit_button = tkinter.Button(frame1, text="Salir", command = biceps_menu)
+    exit_button = tkinter.Button(main_frame, text="Salir", command = biceps_menu)
     exit_button.config(bg = "orange", width = 16, height = 2, relief = "groove", bd = 15, cursor = "pirate", font = (text_label, 15))
     exit_button.pack(side=tkinter.LEFT, padx=20, pady=20)
     
 
 def curl_bar():
-    for widget in frame1.winfo_children():
+    for widget in main_frame.winfo_children():
         widget.destroy()
     
     biceps_timer()
@@ -385,7 +412,7 @@ def curl_bar():
 
 
 def curl_manc():
-    for widget in frame1.winfo_children():
+    for widget in main_frame.winfo_children():
         widget.destroy()
     
     biceps_timer()
@@ -413,7 +440,7 @@ def curl_manc():
 
 
 def focused_curl():
-    for widget in frame1.winfo_children():
+    for widget in main_frame.winfo_children():
         widget.destroy()
     
     biceps_timer()
@@ -442,7 +469,7 @@ def focused_curl():
 
 
 def hammer_curl():
-    for widget in frame1.winfo_children():
+    for widget in main_frame.winfo_children():
         widget.destroy()
     
     biceps_timer()
@@ -469,10 +496,10 @@ def hammer_curl():
 
 
 def biceps_menu():
-    for widget in frame1.winfo_children():
+    for widget in main_frame.winfo_children():
         widget.destroy()
 
-    button_frame_a = tkinter.Frame(frame1, bg = "black")
+    button_frame_a = tkinter.Frame(main_frame, bg = "black")
     button_frame_a.pack(anchor = "nw", padx = 20, pady = 10)
 
     button1_biceps = tkinter.Button(button_frame_a, text = "Curl con barra", command = curl_bar      )
@@ -483,7 +510,7 @@ def biceps_menu():
     button2_biceps.config(bg = "orange", width = 15, height = 2, relief = "groove", bd = 15, cursor = "pirate", font = (text_label, 15))
     button2_biceps.pack(side = tkinter.LEFT, padx= 10, pady = 30 )
 
-    button_frame_b = tkinter.Frame(frame1, bg = "black")
+    button_frame_b = tkinter.Frame(main_frame, bg = "black")
     button_frame_b.pack(anchor = "nw", padx = 20, pady = (10,0))    
 
     button3_biceps = tkinter.Button(button_frame_b, text = "Curl concentrado", font = 15, relief = "groove", command = focused_curl     )
@@ -494,7 +521,7 @@ def biceps_menu():
     button4_biceps.config(bg = "orange", width = 15, height = 2, relief = "groove", bd = 15, cursor = "pirate", font = (text_label, 15))
     button4_biceps.pack(side = tkinter.LEFT, padx = 10, pady = 30)
 
-    back_button = tkinter.Button(frame1, text = "Regresar", command = sup_routines_menu)
+    back_button = tkinter.Button(main_frame, text = "Regresar", command = sup_routines_menu)
     back_button.config(bg = "orange" , width=15, height=2, relief = "groove", bd = 15, cursor = "pirate", font = (text_label, 15))
     back_button.pack(pady = 2)
 
@@ -510,7 +537,7 @@ def back_timer():
             timer = f"{mins:02d}:{secs:02d}"
             label.config(text=f"{activity}: {timer}")
             total_time -= 1
-            frame1.after(1000, countdown)  # Llama a countdown cada segundo
+            main_frame.after(1000, countdown)  # Llama a countdown cada segundo
         elif total_time == 0:
             if activity == "Moviendote":
                 activity = "Descanso"
@@ -543,10 +570,10 @@ def back_timer():
         countdown()
         
 
-    label = tkinter.Label(frame1, text="", font=("Helvetica", 24))
+    label = tkinter.Label(main_frame, text="", font=("Helvetica", 24))
     label.pack(pady=20)
 
-    button_frame_a = tkinter.Frame(frame1, bg = "black")
+    button_frame_a = tkinter.Frame(main_frame, bg = "black")
     button_frame_a.pack(anchor = "nw", padx = 20, pady = 40)
 
     start_button = tkinter.Button(button_frame_a, text="Iniciar", command=start_timer)
@@ -557,17 +584,17 @@ def back_timer():
     pause_button.config(bg = "orange", width = 16, height = 2, relief = "groove", bd = 15, cursor = "pirate", font = (text_label, 15))
     pause_button.pack(side=tkinter.LEFT, padx=10, pady=20)
 
-    resume_button = tkinter.Button(frame1, text="Reanudar/iniciar", command=resume_timer)
+    resume_button = tkinter.Button(main_frame, text="Reanudar/iniciar", command=resume_timer)
     resume_button.config(bg = "orange", width = 16, height = 2, relief = "groove", bd = 15, cursor = "pirate", font = (text_label, 15))
     resume_button.pack(side=tkinter.LEFT, padx=20, pady=20)
 
-    exit_button = tkinter.Button(frame1, text="Salir", command = back_menu)
+    exit_button = tkinter.Button(main_frame, text="Salir", command = back_menu)
     exit_button.config(bg = "orange", width = 16, height = 2, relief = "groove", bd = 15, cursor = "pirate", font = (text_label, 15))
     exit_button.pack(side=tkinter.LEFT, padx=20, pady=20)
 
 
 def bar_rem():
-    for widget in frame1.winfo_children():
+    for widget in main_frame.winfo_children():
         widget.destroy()
     
     back_timer()
@@ -595,7 +622,7 @@ def bar_rem():
 
 
 def pulldown():
-    for widget in frame1.winfo_children():
+    for widget in main_frame.winfo_children():
         widget.destroy()
     
     back_timer()
@@ -624,7 +651,7 @@ def pulldown():
 
 
 def deadlift():
-    for widget in frame1.winfo_children():
+    for widget in main_frame.winfo_children():
         widget.destroy()
     
     back_timer()
@@ -651,7 +678,7 @@ def deadlift():
 
 
 def rem_manc():
-    for widget in frame1.winfo_children():
+    for widget in main_frame.winfo_children():
         widget.destroy()
     
     back_timer()
@@ -679,10 +706,10 @@ def rem_manc():
 
 
 def back_menu():
-    for widget in frame1.winfo_children():
+    for widget in main_frame.winfo_children():
         widget.destroy()
 
-    button_frame_a = tkinter.Frame(frame1, bg = "black")
+    button_frame_a = tkinter.Frame(main_frame, bg = "black")
     button_frame_a.pack(anchor = "nw", padx = 20, pady = 10)
 
     button1_back = tkinter.Button(button_frame_a, text = "Remo con barra", command = bar_rem     )
@@ -693,7 +720,7 @@ def back_menu():
     button2_back.config(bg = "orange", width = 15, height = 2, relief = "groove", bd = 15, cursor = "pirate", font = (text_label, 15))
     button2_back.pack(side = tkinter.LEFT, padx= 10, pady = 30 )
 
-    button_frame_b = tkinter.Frame(frame1, bg = "black")
+    button_frame_b = tkinter.Frame(main_frame, bg = "black")
     button_frame_b.pack(anchor = "nw", padx = 20, pady = (10,0))    
 
     button3_back = tkinter.Button(button_frame_b, text = "Peso muerto", font = 15, relief = "groove", command = deadlift     )
@@ -704,7 +731,7 @@ def back_menu():
     button4_back.config(bg = "orange", width = 16, height = 2, relief = "groove", bd = 15, cursor = "pirate", font = (text_label, 15))
     button4_back.pack(side = tkinter.LEFT, padx = 10, pady = 30)
 
-    back_button = tkinter.Button(frame1, text = "Regresar", command = sup_routines_menu)
+    back_button = tkinter.Button(main_frame, text = "Regresar", command = sup_routines_menu)
     back_button.config(bg = "orange" , width=15, height=2, relief = "groove", bd = 15, cursor = "pirate", font = (text_label, 15))
     back_button.pack(pady = 2)
 
@@ -720,7 +747,7 @@ def triceps_timer():
             timer = f"{mins:02d}:{secs:02d}"
             label.config(text=f"{activity}: {timer}")
             total_time -= 1
-            frame1.after(1000, countdown)  # Llama a countdown cada segundo
+            main_frame.after(1000, countdown)  # Llama a countdown cada segundo
         elif total_time == 0:
             if activity == "Moviendote":
                 activity = "Descanso"
@@ -754,10 +781,10 @@ def triceps_timer():
         countdown()
         
 
-    label = tkinter.Label(frame1, text="", font=("Helvetica", 24))
+    label = tkinter.Label(main_frame, text="", font=("Helvetica", 24))
     label.pack(pady=20)
 
-    button_frame_a = tkinter.Frame(frame1, bg = "black")
+    button_frame_a = tkinter.Frame(main_frame, bg = "black")
     button_frame_a.pack(anchor = "nw", padx = 20, pady = 40)
 
     start_button = tkinter.Button(button_frame_a, text="Iniciar", command=start_timer)
@@ -768,17 +795,17 @@ def triceps_timer():
     pause_button.config(bg = "orange", width = 16, height = 2, relief = "groove", bd = 15, cursor = "pirate", font = (text_label, 15))
     pause_button.pack(side=tkinter.LEFT, padx=10, pady=20)
 
-    resume_button = tkinter.Button(frame1, text="Reanudar/iniciar", command=resume_timer)
+    resume_button = tkinter.Button(main_frame, text="Reanudar/iniciar", command=resume_timer)
     resume_button.config(bg = "orange", width = 16, height = 2, relief = "groove", bd = 15, cursor = "pirate", font = (text_label, 15))
     resume_button.pack(side=tkinter.LEFT, padx=20, pady=20)
 
-    exit_button = tkinter.Button(frame1, text="Salir", command = triceps_menu)
+    exit_button = tkinter.Button(main_frame, text="Salir", command = triceps_menu)
     exit_button.config(bg = "orange", width = 16, height = 2, relief = "groove", bd = 15, cursor = "pirate", font = (text_label, 15))
     exit_button.pack(side=tkinter.LEFT, padx=20, pady=20)
 
 
 def manc_extensions():
-    for widget in frame1.winfo_children():
+    for widget in main_frame.winfo_children():
         widget.destroy()
     
     triceps_timer()
@@ -806,7 +833,7 @@ def manc_extensions():
 
 
 def french_press():
-    for widget in frame1.winfo_children():
+    for widget in main_frame.winfo_children():
         widget.destroy()
     
     back_timer()
@@ -834,7 +861,7 @@ def french_press():
 
 
 def tricep_kick():
-    for widget in frame1.winfo_children():
+    for widget in main_frame.winfo_children():
         widget.destroy()
     
     back_timer()
@@ -862,7 +889,7 @@ def tricep_kick():
 
 
 def paralels():
-    for widget in frame1.winfo_children():
+    for widget in main_frame.winfo_children():
         widget.destroy()
     
     back_timer()
@@ -891,10 +918,10 @@ def paralels():
 
 def triceps_menu():
 
-    for widget in frame1.winfo_children():
+    for widget in main_frame.winfo_children():
         widget.destroy()
 
-    button_frame_a = tkinter.Frame(frame1, bg = "black")
+    button_frame_a = tkinter.Frame(main_frame, bg = "black")
     button_frame_a.pack(anchor = "nw", padx = 20, pady = 10)
 
     button1_tricep = tkinter.Button(button_frame_a, text = "Extensiones con mancuerna", command = manc_extensions     )
@@ -905,7 +932,7 @@ def triceps_menu():
     button2_tricep.config(bg = "orange", width = 15, height = 2, relief = "groove", bd = 15, cursor = "pirate", font = (text_label, 15))
     button2_tricep.pack(side = tkinter.LEFT, padx= 10, pady = 30 )
 
-    button_frame_b = tkinter.Frame(frame1, bg = "black")
+    button_frame_b = tkinter.Frame(main_frame, bg = "black")
     button_frame_b.pack(anchor = "nw", padx = 20, pady = (10,0))    
 
     button3_tricep = tkinter.Button(button_frame_b, text = "Patada de triceps", font = 15, relief = "groove", command = tricep_kick    )
@@ -916,7 +943,7 @@ def triceps_menu():
     button4_tricep.config(bg = "orange", width = 16, height = 2, relief = "groove", bd = 15, cursor = "pirate", font = (text_label, 15))
     button4_tricep.pack(side = tkinter.LEFT, padx = 10, pady = 30)
 
-    back_button = tkinter.Button(frame1, text = "Regresar", command = sup_routines_menu)
+    back_button = tkinter.Button(main_frame, text = "Regresar", command = sup_routines_menu)
     back_button.config(bg = "orange" , width=15, height=2, relief = "groove", bd = 15, cursor = "pirate", font = (text_label, 15))
     back_button.pack(pady = 2)
     
@@ -933,7 +960,7 @@ def shoulder_timer():
             timer = f"{mins:02d}:{secs:02d}"
             label.config(text=f"{activity}: {timer}")
             total_time -= 1
-            frame1.after(1000, countdown)  # Llama a countdown cada segundo
+            main_frame.after(1000, countdown)  # Llama a countdown cada segundo
         elif total_time == 0:
             if activity == "Moviendote":
                 activity = "Descanso"
@@ -967,10 +994,10 @@ def shoulder_timer():
         countdown()
         
 
-    label = tkinter.Label(frame1, text="", font=("Helvetica", 24))
+    label = tkinter.Label(main_frame, text="", font=("Helvetica", 24))
     label.pack(pady=20)
 
-    button_frame_a = tkinter.Frame(frame1, bg = "black")
+    button_frame_a = tkinter.Frame(main_frame, bg = "black")
     button_frame_a.pack(anchor = "nw", padx = 20, pady = 40)
 
     start_button = tkinter.Button(button_frame_a, text="Iniciar", command=start_timer)
@@ -981,17 +1008,17 @@ def shoulder_timer():
     pause_button.config(bg = "orange", width = 16, height = 2, relief = "groove", bd = 15, cursor = "pirate", font = (text_label, 15))
     pause_button.pack(side=tkinter.LEFT, padx=10, pady=20)
 
-    resume_button = tkinter.Button(frame1, text="Reanudar/iniciar", command=resume_timer)
+    resume_button = tkinter.Button(main_frame, text="Reanudar/iniciar", command=resume_timer)
     resume_button.config(bg = "orange", width = 16, height = 2, relief = "groove", bd = 15, cursor = "pirate", font = (text_label, 15))
     resume_button.pack(side=tkinter.LEFT, padx=20, pady=20)
 
-    exit_button = tkinter.Button(frame1, text="Salir", command = shoulder_menu)
+    exit_button = tkinter.Button(main_frame, text="Salir", command = shoulder_menu)
     exit_button.config(bg = "orange", width = 16, height = 2, relief = "groove", bd = 15, cursor = "pirate", font = (text_label, 15))
     exit_button.pack(side=tkinter.LEFT, padx=20, pady=20)
 
 
 def militar_press():
-    for widget in frame1.winfo_children():
+    for widget in main_frame.winfo_children():
         widget.destroy()
     
     shoulder_timer()
@@ -1019,7 +1046,7 @@ def militar_press():
 
 
 def lateral_elevations():
-    for widget in frame1.winfo_children():
+    for widget in main_frame.winfo_children():
         widget.destroy()
     
     shoulder_timer()
@@ -1047,7 +1074,7 @@ def lateral_elevations():
 
 
 def frontal_elev():
-    for widget in frame1.winfo_children():
+    for widget in main_frame.winfo_children():
         widget.destroy()
     
     shoulder_timer()
@@ -1075,7 +1102,7 @@ def frontal_elev():
 
 
 def shrughs():
-    for widget in frame1.winfo_children():
+    for widget in main_frame.winfo_children():
         widget.destroy()
     
     shoulder_timer()
@@ -1104,11 +1131,11 @@ def shrughs():
 
 def shoulder_menu():
     
-    for widget in frame1.winfo_children():
+    for widget in main_frame.winfo_children():
         widget.destroy()
         
 
-    button_frame_a = tkinter.Frame(frame1, bg = "black")
+    button_frame_a = tkinter.Frame(main_frame, bg = "black")
     button_frame_a.pack(anchor = "nw", padx = 20, pady = 10)
 
     button1_shoulder = tkinter.Button(button_frame_a, text = "Press militar", command = militar_press     )
@@ -1119,7 +1146,7 @@ def shoulder_menu():
     button2_shoulder.config(bg = "orange", width = 16, height = 2, relief = "groove", bd = 15, cursor = "pirate", font = (text_label, 15))
     button2_shoulder.pack(side = tkinter.LEFT, padx= 10, pady = 30 )
 
-    button_frame_b = tkinter.Frame(frame1, bg = "black")
+    button_frame_b = tkinter.Frame(main_frame, bg = "black")
     button_frame_b.pack(anchor = "nw", padx = 20, pady = (10,0))    
 
     button3_shoulder = tkinter.Button(button_frame_b, text = "Elevaciones frontales", font = 15, relief = "groove", command = frontal_elev    )
@@ -1130,7 +1157,7 @@ def shoulder_menu():
     button4_shoulder.config(bg = "orange", width = 16, height = 2, relief = "groove", bd = 15, cursor = "pirate", font = (text_label, 15))
     button4_shoulder.pack(side = tkinter.LEFT, padx = 10, pady = 30)
 
-    back_button = tkinter.Button(frame1, text = "Regresar", command = sup_routines_menu)
+    back_button = tkinter.Button(main_frame, text = "Regresar", command = sup_routines_menu)
     back_button.config(bg = "orange" , width=15, height=2, relief = "groove", bd = 15, cursor = "pirate", font = (text_label, 15))
     back_button.pack(pady = 2)
 
@@ -1146,7 +1173,7 @@ def abs_timer():
             timer = f"{mins:02d}:{secs:02d}"
             label.config(text=f"{activity}: {timer}")
             total_time -= 1
-            frame1.after(1000, countdown)  # Llama a countdown cada segundo
+            main_frame.after(1000, countdown)  # Llama a countdown cada segundo
         elif total_time == 0:
             if activity == "Moviendote":
                 activity = "Descanso"
@@ -1180,10 +1207,10 @@ def abs_timer():
         countdown()
         
 
-    label = tkinter.Label(frame1, text="", font=("Helvetica", 24))
+    label = tkinter.Label(main_frame, text="", font=("Helvetica", 24))
     label.pack(pady=20)
 
-    button_frame_a = tkinter.Frame(frame1, bg = "black")
+    button_frame_a = tkinter.Frame(main_frame, bg = "black")
     button_frame_a.pack(anchor = "nw", padx = 20, pady = 40)
 
     start_button = tkinter.Button(button_frame_a, text="Iniciar", command=start_timer)
@@ -1194,18 +1221,18 @@ def abs_timer():
     pause_button.config(bg = "orange", width = 16, height = 2, relief = "groove", bd = 15, cursor = "pirate", font = (text_label, 15))
     pause_button.pack(side=tkinter.LEFT, padx=10, pady=20)
 
-    resume_button = tkinter.Button(frame1, text="Reanudar/iniciar", command=resume_timer)
+    resume_button = tkinter.Button(main_frame, text="Reanudar/iniciar", command=resume_timer)
     resume_button.config(bg = "orange", width = 16, height = 2, relief = "groove", bd = 15, cursor = "pirate", font = (text_label, 15))
     resume_button.pack(side=tkinter.LEFT, padx=20, pady=20)
 
-    exit_button = tkinter.Button(frame1, text="Salir", command = abs_menu)
+    exit_button = tkinter.Button(main_frame, text="Salir", command = abs_menu)
     exit_button.config(bg = "orange", width = 16, height = 2, relief = "groove", bd = 15, cursor = "pirate", font = (text_label, 15))
     exit_button.pack(side=tkinter.LEFT, padx=20, pady=20)
 
 
 def crunches():
 
-    for widget in frame1.winfo_children():
+    for widget in main_frame.winfo_children():
         widget.destroy()
     
     abs_timer()
@@ -1233,7 +1260,7 @@ def crunches():
 
 
 def leg_raisin():
-    for widget in frame1.winfo_children():
+    for widget in main_frame.winfo_children():
         widget.destroy()
     
     abs_timer()
@@ -1261,7 +1288,7 @@ def leg_raisin():
 
 
 def plank():
-    for widget in frame1.winfo_children():
+    for widget in main_frame.winfo_children():
         widget.destroy()
     
     abs_timer()
@@ -1289,7 +1316,7 @@ def plank():
 
 
 def russian_twist():
-    for widget in frame1.winfo_children():
+    for widget in main_frame.winfo_children():
         widget.destroy()
     
     abs_timer()
@@ -1318,10 +1345,10 @@ def russian_twist():
 
 def abs_menu():
 
-    for widget in frame1.winfo_children():
+    for widget in main_frame.winfo_children():
         widget.destroy()
 
-    button_frame_a = tkinter.Frame(frame1, bg = "black")
+    button_frame_a = tkinter.Frame(main_frame, bg = "black")
     button_frame_a.pack(anchor = "nw", padx = 20, pady = 10)
 
     button1_abs = tkinter.Button(button_frame_a, text = "Crunches", command = crunches     )
@@ -1332,7 +1359,7 @@ def abs_menu():
     button2_abs.config(bg = "orange", width = 17, height = 2, relief = "groove", bd = 15, cursor = "pirate", font = (text_label, 15))
     button2_abs.pack(side = tkinter.LEFT, padx= 10, pady = 30 )
 
-    button_frame_b = tkinter.Frame(frame1, bg = "black")
+    button_frame_b = tkinter.Frame(main_frame, bg = "black")
     button_frame_b.pack(anchor = "nw", padx = 20, pady = (10,0))    
 
     button3_abs = tkinter.Button(button_frame_b, text = "Plancha", font = 15, relief = "groove", command = plank    )
@@ -1343,22 +1370,22 @@ def abs_menu():
     button4_abs.config(bg = "orange", width = 16, height = 2, relief = "groove", bd = 15, cursor = "pirate", font = (text_label, 15))
     button4_abs.pack(side = tkinter.LEFT, padx = 10, pady = 30)
 
-    back_button = tkinter.Button(frame1, text = "Regresar", command = sup_routines_menu)
+    back_button = tkinter.Button(main_frame, text = "Regresar", command = sup_routines_menu)
     back_button.config(bg = "orange" , width=15, height=2, relief = "groove", bd = 15, cursor = "pirate", font = (text_label, 15))
     back_button.pack(pady = 2)
 
 
 def sup_routines_menu(): #va a mostrar el nuevo menú, luego de presionar el boton de rutinas preestablecidas
 
-    for widget in frame1.winfo_children():
+    for widget in main_frame.winfo_children():
         widget.destroy()
 
 
-    label2 = tkinter.Label(frame1, text = "Tren superior", font = 15,relief = "groove")
+    label2 = tkinter.Label(main_frame, text = "Tren superior", font = 15,relief = "groove")
     label2.config(padx = 10)
     label2.pack(anchor = "nw", padx = 220, pady = 20) #anchor es para ubicarlo con puntos cardinales
 
-    button_frame = tkinter.Frame(frame1, bg = "black")
+    button_frame = tkinter.Frame(main_frame, bg = "black")
     button_frame.pack(anchor = "nw", padx = 20, pady = 10)
 
     button4 = tkinter.Button(button_frame, text = "Pecho", command = chest_menu   )
@@ -1369,7 +1396,7 @@ def sup_routines_menu(): #va a mostrar el nuevo menú, luego de presionar el bot
     button7.config(bg = "orange", width = 15, height = 2, relief = "groove", bd = 15, cursor = "pirate", font = (text_label, 15))
     button7.pack(side = tkinter.LEFT, padx= 10, pady = 30 )
 
-    button_frame2 = tkinter.Frame(frame1, bg = "black")
+    button_frame2 = tkinter.Frame(main_frame, bg = "black")
     button_frame2.pack(anchor = "nw", padx = 20, pady = (10,0))    
 
     button5 = tkinter.Button(button_frame2, text = "Espalda", font = 15, relief = "groove", command = back_menu)
@@ -1380,7 +1407,7 @@ def sup_routines_menu(): #va a mostrar el nuevo menú, luego de presionar el bot
     button8.config(bg = "orange", width = 15, height = 2, relief = "groove", bd = 15, cursor = "pirate", font = (text_label, 15))
     button8.pack(side = tkinter.LEFT, padx = 10, pady = 30)
 
-    button_frame3 = tkinter.Frame(frame1, bg = "black")
+    button_frame3 = tkinter.Frame(main_frame, bg = "black")
     button_frame3.pack(anchor = "sw", padx = 20, pady = (10,0))
 
     button6 = tkinter.Button(button_frame3, text = "Hombros", command = shoulder_menu    )
@@ -1391,7 +1418,7 @@ def sup_routines_menu(): #va a mostrar el nuevo menú, luego de presionar el bot
     button9.config(bg = "orange", width = 15, height = 2, relief = "groove", bd = 15, cursor = "pirate", font = (text_label, 15))
     button9.pack(side = tkinter.LEFT, padx = 10, pady = 30)
 
-    back_button = tkinter.Button(frame1, text = "Regresar", command = show_new_window2)
+    back_button = tkinter.Button(main_frame, text = "Regresar", command = show_main_menu)
     back_button.config(bg = "orange" , width=15, height=2, relief = "groove", bd = 15, cursor = "pirate", font = (text_label, 15))
     back_button.pack(pady = 2)
 
@@ -1407,7 +1434,7 @@ def timer_legs():
             timer = f"{mins:02d}:{secs:02d}"
             label.config(text=f"{activity}: {timer}")
             total_time -= 1
-            frame1.after(1000, countdown)  # Llama a countdown cada segundo
+            main_frame.after(1000, countdown)  # Llama a countdown cada segundo
         elif total_time == 0:
             if activity == "Moviendote":
                 activity = "Descanso"
@@ -1441,10 +1468,10 @@ def timer_legs():
         countdown()
 
         
-    label = tkinter.Label(frame1, text="", font=("Helvetica", 24))
+    label = tkinter.Label(main_frame, text="", font=("Helvetica", 24))
     label.pack(pady=20)
 
-    button_frame_a = tkinter.Frame(frame1, bg = "black")
+    button_frame_a = tkinter.Frame(main_frame, bg = "black")
     button_frame_a.pack(anchor = "nw", padx = 20, pady = 40)
 
     start_button = tkinter.Button(button_frame_a, text="Iniciar", command=start_timer)
@@ -1455,17 +1482,17 @@ def timer_legs():
     pause_button.config(bg = "orange", width = 16, height = 2, relief = "groove", bd = 15, cursor = "pirate", font = (text_label, 15))
     pause_button.pack(side=tkinter.LEFT, padx=10, pady=20)
 
-    resume_button = tkinter.Button(frame1, text="Reanudar/iniciar", command=resume_timer)
+    resume_button = tkinter.Button(main_frame, text="Reanudar/iniciar", command=resume_timer)
     resume_button.config(bg = "orange", width = 16, height = 2, relief = "groove", bd = 15, cursor = "pirate", font = (text_label, 15))
     resume_button.pack(side=tkinter.LEFT, padx=20, pady=20)
 
-    exit_button = tkinter.Button(frame1, text="Salir", command = leg_menu,)
+    exit_button = tkinter.Button(main_frame, text="Salir", command = leg_menu,)
     exit_button.config(bg = "orange", width = 16, height = 2, relief = "groove", bd = 15, cursor = "pirate", font = (text_label, 15))
     exit_button.pack(side=tkinter.LEFT, padx=20, pady=20)
 
 
 def deadlift_ruman():
-    for widget in frame1.winfo_children():
+    for widget in main_frame.winfo_children():
         widget.destroy()
     timer_legs()
 
@@ -1492,7 +1519,7 @@ def deadlift_ruman():
 
 
 def squats():
-    for widget in frame1.winfo_children():
+    for widget in main_frame.winfo_children():
         widget.destroy()
 
     timer_legs()
@@ -1520,7 +1547,7 @@ def squats():
 
 
 def Press():
-    for widget in frame1.winfo_children():
+    for widget in main_frame.winfo_children():
         widget.destroy()
 
     timer_legs()
@@ -1548,7 +1575,7 @@ def Press():
 
 
 def strides():
-    for widget in frame1.winfo_children():
+    for widget in main_frame.winfo_children():
         widget.destroy()
 
     timer_legs()
@@ -1576,11 +1603,11 @@ def strides():
     
 
 def leg_menu():
-    for widget in frame1.winfo_children():
+    for widget in main_frame.winfo_children():
         widget.destroy()
 
 
-    button_frame_a = tkinter.Frame(frame1, bg = "black")
+    button_frame_a = tkinter.Frame(main_frame, bg = "black")
     button_frame_a.pack(anchor = "nw", padx = 20, pady = 10)
 
     button1_legs = tkinter.Button(button_frame_a, text = "Sentadillas", command = squats     )
@@ -1591,7 +1618,7 @@ def leg_menu():
     button2_legs.config(bg = "orange", width = 17, height = 2, relief = "groove", bd = 15, cursor = "pirate", font = (text_label, 15))
     button2_legs.pack(side = tkinter.LEFT, padx= 10, pady = 30 )
 
-    button_frame_b = tkinter.Frame(frame1, bg = "black")
+    button_frame_b = tkinter.Frame(main_frame, bg = "black")
     button_frame_b.pack(anchor = "nw", padx = 20, pady = (10,0))    
 
     button3_legs = tkinter.Button(button_frame_b, text = "Peso muerto rumano", font = 15, relief = "groove", command = deadlift_ruman    )
@@ -1602,7 +1629,7 @@ def leg_menu():
     button4_legs.config(bg = "orange", width = 16, height = 2, relief = "groove", bd = 15, cursor = "pirate", font = (text_label, 15))
     button4_legs.pack(side = tkinter.LEFT, padx = 10, pady = 30)
 
-    back_button = tkinter.Button(frame1, text = "Regresar", command = inf_routines_menu)
+    back_button = tkinter.Button(main_frame, text = "Regresar", command = inf_routines_menu)
     back_button.config(bg = "orange" , width=15, height=2, relief = "groove", bd = 15, cursor = "pirate", font = (text_label, 15))
     back_button.pack(pady = 2)
  
@@ -1619,7 +1646,7 @@ def calves_timer():
             timer = f"{mins:02d}:{secs:02d}"
             label.config(text=f"{activity}: {timer}")
             total_time -= 1
-            frame1.after(1000, countdown)  
+            main_frame.after(1000, countdown)  
         elif total_time == 0:
             if activity == "Moviendote":
                 activity = "Descanso"
@@ -1653,10 +1680,10 @@ def calves_timer():
         countdown()
 
 
-    label = tkinter.Label(frame1, text="", font=("Helvetica", 24))
+    label = tkinter.Label(main_frame, text="", font=("Helvetica", 24))
     label.pack(pady=20)
 
-    button_frame_a = tkinter.Frame(frame1, bg = "black")
+    button_frame_a = tkinter.Frame(main_frame, bg = "black")
     button_frame_a.pack(anchor = "nw", padx = 20, pady = 40)
 
     start_button = tkinter.Button(button_frame_a, text="Iniciar", command=start_timer)
@@ -1667,18 +1694,18 @@ def calves_timer():
     pause_button.config(bg = "orange", width = 16, height = 2, relief = "groove", bd = 15, cursor = "pirate", font = (text_label, 15))
     pause_button.pack(side=tkinter.LEFT, padx=10, pady=20)
 
-    resume_button = tkinter.Button(frame1, text="Reanudar/iniciar", command=resume_timer)
+    resume_button = tkinter.Button(main_frame, text="Reanudar/iniciar", command=resume_timer)
     resume_button.config(bg = "orange", width = 16, height = 2, relief = "groove", bd = 15, cursor = "pirate", font = (text_label, 15))
     resume_button.pack(side=tkinter.LEFT, padx=20, pady=20)
 
-    exit_button = tkinter.Button(frame1, text="Salir", command = calves_menu)
+    exit_button = tkinter.Button(main_frame, text="Salir", command = calves_menu)
     exit_button.config(bg = "orange", width = 16, height = 2, relief = "groove", bd = 15, cursor = "pirate", font = (text_label, 15))
     exit_button.pack(side=tkinter.LEFT, padx=20, pady=20)
     
 
 def calves_raising():
 
-    for widget in frame1.winfo_children():
+    for widget in main_frame.winfo_children():
         widget.destroy()
 
     calves_timer()
@@ -1707,7 +1734,7 @@ def calves_raising():
 
 def sit_raising():
 
-    for widget in frame1.winfo_children():
+    for widget in main_frame.winfo_children():
         widget.destroy()
 
 
@@ -1737,7 +1764,7 @@ def sit_raising():
 
 def calves_press():
 
-    for widget in frame1.winfo_children():
+    for widget in main_frame.winfo_children():
         widget.destroy()
 
 
@@ -1767,7 +1794,7 @@ def calves_press():
 
 
 def calves_jumpin():
-    for widget in frame1.winfo_children():
+    for widget in main_frame.winfo_children():
         widget.destroy()
 
 
@@ -1797,10 +1824,10 @@ def calves_jumpin():
 
 def calves_menu():
 
-    for widget in frame1.winfo_children():
+    for widget in main_frame.winfo_children():
         widget.destroy()
 
-    button_frame_a = tkinter.Frame(frame1, bg = "black")
+    button_frame_a = tkinter.Frame(main_frame, bg = "black")
     button_frame_a.pack(anchor = "nw", padx = 20, pady = 10)
 
     button1_calves = tkinter.Button(button_frame_a, text = "E. de talones de pie",  command= calves_raising    )
@@ -1811,7 +1838,7 @@ def calves_menu():
     button2_calves.config(bg = "orange", width = 17, height = 2, relief = "groove", bd = 15, cursor = "pirate", font = (text_label, 15))
     button2_calves.pack(side = tkinter.LEFT, padx= 10, pady = 30 )
 
-    button_frame_b = tkinter.Frame(frame1, bg = "black")
+    button_frame_b = tkinter.Frame(main_frame, bg = "black")
     button_frame_b.pack(anchor = "nw", padx = 20, pady = (10,0))    
 
     button3_calves = tkinter.Button(button_frame_b, text = "Elevación en prensa", font = 15, relief = "groove", command= calves_press     )
@@ -1822,7 +1849,7 @@ def calves_menu():
     button4_calves.config(bg = "orange", width = 16, height = 2, relief = "groove", bd = 15, cursor = "pirate", font = (text_label, 15))
     button4_calves.pack(side = tkinter.LEFT, padx = 10, pady = 30)
 
-    back_button = tkinter.Button(frame1, text = "Regresar", command = inf_routines_menu)
+    back_button = tkinter.Button(main_frame, text = "Regresar", command = inf_routines_menu)
     back_button.config(bg = "orange" , width=15, height=2, relief = "groove", bd = 15, cursor = "pirate", font = (text_label, 15))
     back_button.pack(pady = 2)
 
@@ -1839,7 +1866,7 @@ def gluteus_timer():
             timer = f"{mins:02d}:{secs:02d}"
             label.config(text=f"{activity}: {timer}")
             total_time -= 1
-            frame1.after(1000, countdown)  
+            main_frame.after(1000, countdown)  
         elif total_time == 0:
             if activity == "Moviendote":
                 activity = "Descanso"
@@ -1872,10 +1899,10 @@ def gluteus_timer():
         countdown()
 
 
-    label = tkinter.Label(frame1, text="", font=("Helvetica", 24))
+    label = tkinter.Label(main_frame, text="", font=("Helvetica", 24))
     label.pack(pady=20)
 
-    button_frame_a = tkinter.Frame(frame1, bg = "black")
+    button_frame_a = tkinter.Frame(main_frame, bg = "black")
     button_frame_a.pack(anchor = "nw", padx = 20, pady = 40)
 
     start_button = tkinter.Button(button_frame_a, text="Iniciar", command=start_timer)
@@ -1886,18 +1913,18 @@ def gluteus_timer():
     pause_button.config(bg = "orange", width = 16, height = 2, relief = "groove", bd = 15, cursor = "pirate", font = (text_label, 15))
     pause_button.pack(side=tkinter.LEFT, padx=10, pady=20)
 
-    resume_button = tkinter.Button(frame1, text="Reanudar/iniciar", command=resume_timer)
+    resume_button = tkinter.Button(main_frame, text="Reanudar/iniciar", command=resume_timer)
     resume_button.config(bg = "orange", width = 16, height = 2, relief = "groove", bd = 15, cursor = "pirate", font = (text_label, 15))
     resume_button.pack(side=tkinter.LEFT, padx=20, pady=20)
 
-    exit_button = tkinter.Button(frame1, text="Salir", command = gluteus_menu)
+    exit_button = tkinter.Button(main_frame, text="Salir", command = gluteus_menu)
     exit_button.config(bg = "orange", width = 16, height = 2, relief = "groove", bd = 15, cursor = "pirate", font = (text_label, 15))
     exit_button.pack(side=tkinter.LEFT, padx=20, pady=20)
     
 
 def bridges():
 
-    for widget in frame1.winfo_children():
+    for widget in main_frame.winfo_children():
         widget.destroy()
 
     gluteus_timer()
@@ -1925,7 +1952,7 @@ def bridges():
 
 
 def sumo():
-    for widget in frame1.winfo_children():
+    for widget in main_frame.winfo_children():
         widget.destroy()
 
 
@@ -1954,7 +1981,7 @@ def sumo():
 
 
 def waist_raisin():
-    for widget in frame1.winfo_children():
+    for widget in main_frame.winfo_children():
         widget.destroy()
 
 
@@ -1983,7 +2010,7 @@ def waist_raisin():
 
 
 def lateral():
-    for widget in frame1.winfo_children():
+    for widget in main_frame.winfo_children():
         widget.destroy()
 
 
@@ -2014,9 +2041,9 @@ def lateral():
 
 def gluteus_menu():
 
-    for widget in frame1.winfo_children():
+    for widget in main_frame.winfo_children():
         widget.destroy()
-    button_frame_a = tkinter.Frame(frame1, bg = "black")
+    button_frame_a = tkinter.Frame(main_frame, bg = "black")
     button_frame_a.pack(anchor = "nw", padx = 20, pady = 10)
 
     button1_calves = tkinter.Button(button_frame_a, text = "Puente", command = bridges     )
@@ -2027,7 +2054,7 @@ def gluteus_menu():
     button2_calves.config(bg = "orange", width = 17, height = 2, relief = "groove", bd = 15, cursor = "pirate", font = (text_label, 15))
     button2_calves.pack(side = tkinter.LEFT, padx= 10, pady = 30 )
 
-    button_frame_b = tkinter.Frame(frame1, bg = "black")
+    button_frame_b = tkinter.Frame(main_frame, bg = "black")
     button_frame_b.pack(anchor = "nw", padx = 20, pady = (10,0))    
 
     button3_calves = tkinter.Button(button_frame_b, text = "Elevaciones de cadera", font = 15, relief = "groove", command = waist_raisin    )
@@ -2038,21 +2065,21 @@ def gluteus_menu():
     button4_calves.config(bg = "orange", width = 16, height = 2, relief = "groove", bd = 15, cursor = "pirate", font = (text_label, 15))
     button4_calves.pack(side = tkinter.LEFT, padx = 10, pady = 30)
 
-    back_button = tkinter.Button(frame1, text = "Regresar", command = inf_routines_menu)
+    back_button = tkinter.Button(main_frame, text = "Regresar", command = inf_routines_menu)
     back_button.config(bg = "orange" , width=15, height=2, relief = "groove", bd = 15, cursor = "pirate", font = (text_label, 15))
     back_button.pack(pady = 2)
 
     
 def inf_routines_menu():
 
-    for widget in frame1.winfo_children():
+    for widget in main_frame.winfo_children():
         widget.destroy()
     
-    label3 = tkinter.Label(frame1, text = "tren inferior", font = 15,relief = "groove",     )
+    label3 = tkinter.Label(main_frame, text = "tren inferior", font = 15,relief = "groove",     )
     label3.config(padx = 10)
     label3.pack(anchor = "nw", padx = 220, pady = 20)
 
-    button_frame4 = tkinter.Frame(frame1, bg = "black")
+    button_frame4 = tkinter.Frame(main_frame, bg = "black")
     button_frame4.pack(anchor = "nw", padx = 20, pady = (10,0))
 
     button10 = tkinter.Button(button_frame4, text = "Pierna", command = leg_menu     )
@@ -2063,32 +2090,29 @@ def inf_routines_menu():
     button11.config(bg = "orange", width = 15, height = 2, relief = "groove", bd = 15, cursor = "pirate", font = (text_label, 15))
     button11.pack(side = tkinter.LEFT, padx = 10, pady = 30)
 
-    button_frame5 = tkinter.Frame(frame1, bg = "black")
+    button_frame5 = tkinter.Frame(main_frame, bg = "black")
     button_frame5.pack(anchor = "nw", padx = 20, pady = (10,0))
 
     button12 = tkinter.Button(button_frame5, text = "Glúteo",  command = gluteus_menu    )
     button12.config(bg = "orange", width = 15, height = 2, relief = "groove", bd = 15, cursor = "pirate", font = (text_label, 15))
     button12.pack(side = tkinter.LEFT, padx = 10, pady = 30)
 
-    back_button = tkinter.Button(frame1, text = "Regresar", command = show_new_window2)
+    back_button = tkinter.Button(main_frame, text = "Regresar", command = show_main_menu)
     back_button.config(bg = "orange" , width=15, height=2, relief = "groove", bd = 15, cursor = "pirate", font = (text_label, 15))
     back_button.pack(side = tkinter.BOTTOM )
 
 
 def go_back(): #permite regresar al boton de ingresar
-    for widget in frame1.winfo_children():
+    for widget in main_frame.winfo_children():
         widget.destroy()
     button1.pack(pady = 200)
 
 
-frame1 = tkinter.Frame(window, bg = "black")
-frame1.config(width = 1000, height = 1000)
-frame1.pack(expand = True, fill = tkinter.BOTH)
 
 #etiquette = tkinter.Label(window, text = "Bienvenido a Workout app") #es una etiqueta
 #etiquette.pack()  # mostrar en pantalla
 
-button1 = tkinter.Button(frame1, text = "ingresar", font = text_label, command = show_new_window)
+button1 = tkinter.Button(main_frame, text = "ingresar", font = text_label, command = show_new_window)
 button1.config(bg = "gold" , width=10, height=2, relief = "groove", bd = 15, cursor = "pirate")
 button1.pack(pady = 200)
 
